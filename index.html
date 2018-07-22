@@ -39,45 +39,30 @@
         var engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
 
-        /******* Add the create scene function ******/
-        var createScene = function () {
+        BABYLON.SceneLoader.Load("", "scene.babylon", engine, function (newScene) {
+            var Scene = newScene;
+            Scene.executeWhenReady(function () {
 
-            // Create the scene space
-            var scene = new BABYLON.Scene(engine);
+                // Scene.activeCamera.attachControl(canvas);
+                // console.log(Scene.meshes);
+                // Scene.meshes[1].isVisible = false;
+                // Scene.meshes[2].isVisible = false;
+                // Scene.meshes[3].isVisible = false;
+                // Scene.meshes[4].isVisible = false;
+                // Scene.meshes[5].isVisible = false;
+                // Scene.meshes[6].isVisible = false;
+                // Scene.meshes[8].isVisible = false;
+                // Scene.meshes[0].isVisible = false;
 
-            //Adding an Arc Rotate Camera
-            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas, false);
+                var camera = new BABYLON.ArcRotateCamera("Camera", 1, 1, 4, BABYLON.Vector3.Zero(), Scene);
 
-            // Add lights to the scene
-            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 20, 100), scene);
+                
+                engine.runRenderLoop(function () { // Register a render loop to repeatedly render the scene
+                    Scene.render();
+                });
 
-
-
-            // Add and manipulate meshes in the scene
-
-            BABYLON.SceneLoader.ImportMesh("", "/Resources/", "Pie.obj", scene, function (newMeshes) {
-                // Set the target of the camera to the first imported mesh
-                camera.target = newMeshes[0];
-            });
-            // var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.5 }, scene);
-
-            // Move the light with the camera
-            scene.registerBeforeRender(function () {
-                light.position = camera.position;
-            });
-
-            return scene;
-        };
-
-        /******* End of the create scene function ******/
-
-        var scene = createScene(); //Call the createScene function
-
-        engine.runRenderLoop(function () { // Register a render loop to repeatedly render the scene
-            scene.render();
+            })
         });
-
 
         window.addEventListener("resize", function () { // Watch for browser/canvas resize events
             engine.resize();
