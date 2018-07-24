@@ -21,10 +21,11 @@
             touch-action: none;
         }
     </style>
-
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>    
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+
 
 </head>
 
@@ -37,6 +38,8 @@
         var canvas = document.getElementById("renderCanvas"); // Get the canvas element 
 
         var engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+        var mymeshes = {};
 
 
         BABYLON.SceneLoader.Load("", "scene.babylon", engine, function (newScene) {
@@ -53,12 +56,69 @@
                 // Scene.meshes[6].isVisible = false;
                 // Scene.meshes[8].isVisible = false;
                 // Scene.meshes[0].isVisible = false;
+                // Scene.meshes[9];
 
-                var camera = new BABYLON.ArcRotateCamera("Camera", 1, 1, 4, BABYLON.Vector3.Zero(), Scene);
+                mymeshes.centerBar = Scene.meshes[9];
+                mymeshes.fullPie = [
+                                    Scene.meshes[0],
+                                    Scene.meshes[1],
+                                    Scene.meshes[2],
+                                    Scene.meshes[3],
+                                    Scene.meshes[4],
+                                    Scene.meshes[5],
+                                    Scene.meshes[6],
+                                    Scene.meshes[8],
+                                    ];
+                mymeshes.ball = Scene.meshes[7];
+                var camera = Scene.activeCamera;
 
+
+                var sphere = new BABYLON.Mesh.CreateSphere('sp1', 16, 1, Scene);
+                mymeshes.fullPie.forEach(element => {
+                    element.parent = sphere;
+                    // element.isVisible=false;
+                });
+
+
+                // var ground = new BABYLON.Mesh.CreateGround('g1', 6,6,2, Scene);
+
+                // mymeshes.centerBar.isVisible =false;
+                sphere.isVisible=false;
+
+
+                mymeshes.centerBar.position = new BABYLON.Vector3(0,0,0);
+                sphere.position = new BABYLON.Vector3(0,0,0);
+                mymeshes.ball.position = new BABYLON.Vector3(3, 5, -3);
+
+
+
+                // var newcc = sphere.clone();
+                // newcc.position = new BABYLON.Vector3(0,-5,0);
+                // newcc.childrensArr = newcc.getChildMeshes();
+                // // newcc.childrensArr[4].isVisible = false;
+                
+
+                Scene.activeCamera.position = new BABYLON.Vector3(8.5, 6, -8);
+                // Scene.activeCamera.rotation = new BABYLON.Vector3(0, 0, 0);
+                // Scene.activeCamera.attachControl(canvas,true);
+
+                Scene.clearColor = new BABYLON.Color3(0.9,0.95,0.98);
+              
+                
+                Scene.clearColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+                Scene.ambientColor = new BABYLON.Color3.Blue;                
                 
                 engine.runRenderLoop(function () { // Register a render loop to repeatedly render the scene
                     Scene.render();
+                    // Scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
+                    // camera.applyGravity = true;
+                    var gravityVector = new BABYLON.Vector3(0,-9.81, 0);
+                    var physicsPlugin = new BABYLON.CannonJSPlugin();
+                    Scene.enablePhysics(gravityVector, physicsPlugin);                    
+                    mymeshes.ball.physicsImpostor = new BABYLON.PhysicsImpostor(mymeshes.ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0.1, restitution: 0.1 }, Scene);
+                    mymeshes.centerBar.physicsImpostor = new BABYLON.PhysicsImpostor(mymeshes.centerBar, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, friction: 0.1, restitution: 0 }, Scene);
+                    // sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0.1, restitution: 0.1 }, Scene);
+                    // newcc.physicsImpostor = new BABYLON.PhysicsImpostor(newcc, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.1 }, Scene);                    
                 });
 
             })
