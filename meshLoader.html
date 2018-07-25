@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Babylon Template</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <!-- <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script> -->
+
+    <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+
+
+</head>
+
+<body>
+
+    <canvas id="renderCanvas" touch-action="none"></canvas> //touch-action="none" for best results from PEP
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            var canvas = document.getElementById('renderCanvas');
+
+            var bar, ball, pie;
+
+            var engine = new BABYLON.Engine(canvas, true);
+            engine.enableOfflineSupport = false; // Dont require a manifest file
+            var createScene = function () {
+                var scene = new BABYLON.Scene(engine);
+                scene.clearColor = new BABYLON.Color3.White();
+
+
+                var camera = new BABYLON.FreeCamera("arcCam",
+                    BABYLON.Tools.ToRadians(0),
+                    BABYLON.Tools.ToRadians(0),
+                    10.0, BABYLON.Vector3.Zero(), scene);
+                camera.attachControl(canvas, true);
+
+                var light = new BABYLON.PointLight("PointLight", new BABYLON.Vector3(
+                    10, 5, -10), scene);
+                light.parent = camera;
+                light.intensity = 0.5;
+
+                BABYLON.SceneLoader.ImportMesh("", "", "barOPAB.babylon",
+                    scene, function (newMeshes) {
+                        console.log(newMeshes);
+                        newMeshes.forEach(function (mesh) {
+                            if (newMeshes.indexOf(mesh) != 0) {
+                                mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));
+                                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.1, restitution: 0 }, scene);
+                                if (newMeshes.indexOf(mesh) != newMeshes.length - 1) {
+                                    mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(45 * newMeshes.indexOf(mesh)));
+                                }
+                            }
+
+                        });
+
+                        console.log(newMeshes[0].position);
+                        newMeshes[0].position = BABYLON.Vector3.Zero();
+                        console.log(newMeshes[0].position);
+                        newMeshes[0].position = new BABYLON.Vector3( -2, 2, 0);
+                        newMeshes[0].physicsImpostor = new BABYLON.PhysicsImpostor(newMeshes[0], BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0.1, restitution: 0.9 }, scene);
+
+                        console.log(scene.activeCamera);
+                        scene.activeCamera.position = new BABYLON.Vector3(5,0,0);
+                        scene.activeCamera.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));                        
+                    });
+
+                return scene;
+            }
+
+            var scene = createScene();
+
+            console.log(scene.meshes);
+            // scene.meshes[1].isVisible =false;
+
+            var gravityVector = new BABYLON.Vector3(9.81, 0, 0);
+            var physicsPlugin = new BABYLON.CannonJSPlugin();
+            scene.enablePhysics(gravityVector, physicsPlugin);
+
+
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
+
+        });
+
+    </script>
+
+</body>
+
+</html>

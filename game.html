@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Babylon Template</title>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <!-- <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script> -->
+
+    <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+
+
+</head>
+
+<body>
+
+    <canvas id="renderCanvas" touch-action="none"></canvas> //touch-action="none" for best results from PEP
+
+    <script>
+
+        var scene, camera, target, helper;
+
+        var canvas = document.getElementById("renderCanvas"); // Get the canvas element 
+
+        var engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+        var createScene = function () {
+            // Playground needs to return at least an empty scene and default camera
+            scene = new BABYLON.Scene(engine);
+            camera = new BABYLON.Camera("camera1", BABYLON.Vector3.Zero(), scene);
+            var light = new BABYLON.PointLight("PointLight",new BABYLON.Vector3(
+            10,5,-10),scene);
+            light.parent = camera;
+            light.intensity = 1.5;
+            // Async call
+            BABYLON.SceneLoader.Append("./",
+                "barO.babylon", scene, function () {
+                    // The main file has been loaded but let's wait for all ressources
+                    // to be ready (textures, etc.)
+                    scene.executeWhenReady(function () {
+
+                            // console.log(scene.activeCamera.position);
+                            scene.activeCamera = camera;
+                            // console.log(camera.position);                            
+                            // scene.activeCamera.position = new BABYLON.Vector3(8.5, 6, -118);
+                            // camera.position = new BABYLON.Vector3(8.5, 6, -118);
+                            // console.log(scene.activeCamera.position);
+                            // scene.activeCamera.attachControl(canvas,true);
+                            // camera = scene.activeCamera;
+
+                            console.log(scene.meshes);
+                            // scene.activeCamera .setTarget(scene.meshes[0].position)
+                            
+
+
+                    });
+                });
+
+            return scene;
+        };
+
+        var scene = createScene();
+
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });        
+    </script>
+
+</body>
+
+</html>
