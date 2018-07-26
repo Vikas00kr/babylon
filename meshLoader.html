@@ -48,10 +48,14 @@
                 scene.clearColor = new BABYLON.Color3.White();
 
 
-                var camera = new BABYLON.FreeCamera("arcCam",
-                    BABYLON.Tools.ToRadians(0),
-                    BABYLON.Tools.ToRadians(0),
-                    10.0, BABYLON.Vector3.Zero(), scene);
+                // var camera = new BABYLON.ArcRotateCamera("arcCam",
+                    // BABYLON.Tools.ToRadians(0),
+                    // BABYLON.Tools.ToRadians(0),
+                    // 10.0, BABYLON.Vector3.Zero(), scene);
+
+                var camera = new BABYLON.UniversalCamera("UniversalCamera", 
+                new BABYLON.Vector3(0, 0, -10), scene);
+
                 camera.attachControl(canvas, true);
 
                 var light = new BABYLON.PointLight("PointLight", new BABYLON.Vector3(
@@ -64,7 +68,7 @@
                         console.log(newMeshes);
                         newMeshes.forEach(function (mesh) {
                             if (newMeshes.indexOf(mesh) != 0) {
-                                mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));
+                                mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));
                                 mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.1, restitution: 0 }, scene);
                                 if (newMeshes.indexOf(mesh) != newMeshes.length - 1) {
                                     mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(45 * newMeshes.indexOf(mesh)));
@@ -74,14 +78,15 @@
                         });
 
                         console.log(newMeshes[0].position);
+                        // newMeshes[0].rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));
                         newMeshes[0].position = BABYLON.Vector3.Zero();
                         console.log(newMeshes[0].position);
                         newMeshes[0].position = new BABYLON.Vector3( -2, 2, 0);
                         newMeshes[0].physicsImpostor = new BABYLON.PhysicsImpostor(newMeshes[0], BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0.1, restitution: 0.9 }, scene);
 
                         console.log(scene.activeCamera);
-                        scene.activeCamera.position = new BABYLON.Vector3(5,0,0);
-                        scene.activeCamera.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));                        
+                        // scene.activeCamera.position = new BABYLON.Vector3(5,0,0);
+                        // scene.activeCamera.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));                        
                     });
 
                 return scene;
