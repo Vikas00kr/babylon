@@ -37,11 +37,12 @@
         window.addEventListener('DOMContentLoaded', function () {
             var canvas = document.getElementById('renderCanvas');
 
-            var base, bar, ball, pie;
+            var base, bar, ball, pie;            
 
 
             var engine = new BABYLON.Engine(canvas, true);
             engine.enableOfflineSupport = false; // Dont require a manifest file
+            
             var createScene = function () {
                 var scene = new BABYLON.Scene(engine);
                 scene.clearColor = new BABYLON.Color3.White();
@@ -60,22 +61,22 @@
                     scene, function (newMeshes) {
 
                         base = BABYLON.MeshBuilder.CreateCylinder("base", { diameter: 2 });
-                        base.isVisible =false;
+                        base.isVisible = false;
                         pie = BABYLON.MeshBuilder.CreateSphere("pie", { diameter: 2 });
                         pie.isVisible = false;
                         pie.parent = base;
-                        bar = newMeshes[newMeshes.length-1];
+                        bar = newMeshes[newMeshes.length - 1];
                         newMeshes.forEach(function (mesh) {
                             if (newMeshes.indexOf(mesh) != 0) {
                                 mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0));
                                 // mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.1, restitution: 0 }, scene);
-                                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor, { mass: 0, friction: 0, restitution: 0.9 }, scene);
+                                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor, { mass: 0, friction: 0, restitution: 0 }, scene);
                                 if (newMeshes.indexOf(mesh) != newMeshes.length - 1) {
                                     mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(45 * newMeshes.indexOf(mesh)));
                                     mesh.parent = pie;
                                     // mesh.showBoundingBox = true;
                                     if (newMeshes.indexOf(mesh) == 5) {
-                                        mesh.isVisible = false;
+                                        // mesh.isVisible = false;
                                     }
                                 }
                             }
@@ -83,26 +84,52 @@
                         });
 
 
-                        pie.position = new BABYLON.Vector3(0, 1, 0);
-                        // pie.parent = bar;
+                        pie.position = new BABYLON.Vector3(0, 11, 0);
+                        pie.childrensArr = pie.getChildMeshes();
 
-                        var pie2 = pie.clone();
-                        pie2.childrensArr = pie2.getChildMeshes();
-                        pie2.position = new BABYLON.Vector3(0, -2, 0);
-                        pie2.childrensArr.forEach(mesh => {
-                            mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(45 * pie2.childrensArr.indexOf(mesh)));
-                            mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor, { mass: 0, friction: 0, restitution: 0.9 }, scene);
-                        });
+                        var pie2 = addNewPie(pie);
+                        // pie2.childrensArr = pie2.getChildMeshes();
+                        // pie2.position = new BABYLON.Vector3(0, -2, 0);
+                        // pie2.childrensArr.forEach(mesh => {
+                        //     mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(45 * pie2.childrensArr.indexOf(mesh)));
+                        //     mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor, { mass: 0, friction: 0, restitution: 0 }, scene);
+                        // });
 
                         ball = newMeshes[0];
                         ball.position = new BABYLON.Vector3(0, 5, -2);
-                        ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0, restitution: 0.9 }, scene);
+                        ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0, restitution: 0 }, scene);
                         // ball.showBoundingBox = true;
                         // camera.lockedTarget = newMeshes[0];
 
-                        ball.physicsImpostor.registerOnPhysicsCollide(pie.physicsImpostor, function(main, collided) {
-                            console.log("Collision");
-                        });                        
+                        // ball.physicsImpostor.registerOnPhysicsCollide(pie.childrensArr[4].physicsImpostor, function(main, collided) {
+                        //     this.
+                        // });                        
+
+                        // if (ball.intersectsMesh(pie, false)) {
+                        //     console.log("Mesh");
+                        // } 
+
+                        // pie2.childrensArr.forEach(((cube, i) => {
+
+                        // ball.physicsImpostor.registerOnPhysicsCollide(cube.physicsImpostor, function(main, collided) {
+                        //     ball.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 1, 0), ball.getAbsolutePosition());
+                        //         console.log("cube");
+
+                        // });                                  
+                        // }));                            
+
+                        scene.registerBeforeRender(() => {
+
+                            pie2.childrensArr.forEach(((cube, i) => {
+
+                                if (cube.intersectsMesh(ball)) {
+
+                                    ball.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 1, 0), ball.getAbsolutePosition());
+                                    console.log("cube");
+                                }
+
+                            }));
+                        });
 
                         camera.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(20), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0));
                     });
@@ -111,7 +138,7 @@
 
                 document.addEventListener("touchstart", onPointerDown);
                 document.addEventListener("touchmove", onPointerMove);
-                var rotSpeed = 0.15;
+                var rotSpeed = 0.10;
 
                 //vars for events
                 var currentMesh;
@@ -128,7 +155,7 @@
 
                 function onPointerDown(e) {
                     if (e.touches) {
-                        
+
                         dragInit = e.touches[0].pageX;
                         e.preventDefault();
                     }
@@ -139,7 +166,7 @@
                         var movePosX = e.touches[0].pageX;
                         if (movePosX < dragInit) {
                             touchHandler(1);
-                             
+
                         } else {
                             touchHandler(-1);
                         }
@@ -152,6 +179,36 @@
                 return scene;
             }
 
+            function addNewPie(pie) {
+                var pie2 = pie.clone();
+                pie2.childrensArr = pie2.getChildMeshes();
+                pie2.position = new BABYLON.Vector3(0, -1, 0);
+                
+                var hiddenPiece = [];
+                var hiddenPieces = getRandomInt(2) + 1;
+
+                for(var i = 0; i<hiddenPieces; i++){
+                    hiddenPiece.push(getRandomInt(pie2.childrensArr.length));
+                }
+
+                pie2.childrensArr.forEach(mesh => {
+                    mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(45 * pie2.childrensArr.indexOf(mesh)));
+                    mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor, { mass: 0, friction: 0, restitution: 0 }, scene);
+                    physicsViewer.showImpostor(mesh.physicsImpostor);
+                    if (hiddenPiece.includes(pie2.childrensArr.indexOf(mesh))) {
+                        mesh.isVisible = false;
+                    }
+                });
+                hiddenPiece = [];
+
+                return pie2;
+
+            }
+
+            function getRandomInt(max) {
+            return Math.floor(Math.random() * Math.floor(max));
+            }
+
             var scene = createScene();
 
             console.log(scene.meshes);
@@ -160,6 +217,10 @@
             var gravityVector = new BABYLON.Vector3(0, -9.81, 0);
             var physicsPlugin = new BABYLON.CannonJSPlugin();
             scene.enablePhysics(gravityVector, physicsPlugin);
+            var physicsViewer = new BABYLON.Debug.PhysicsViewer();
+
+
+
 
 
             engine.runRenderLoop(function () {
